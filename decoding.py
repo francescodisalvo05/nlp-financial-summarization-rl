@@ -10,7 +10,7 @@ from cytoolz import curry
 
 import torch
 
-from utils import PAD, UNK, START, END
+from utils.utils import PAD, UNK, START, END
 from model.copy_summ import CopySumm
 from model.extract import ExtractSumm, PtrExtractSumm
 from model.rl import ActorCritic
@@ -40,7 +40,7 @@ def make_html_safe(s):
     return s.replace("<", "&lt;").replace(">", "&gt;")
 
 
-def load_best_ckpt(model_dir, reverse=False):
+def load_best_ckpt(model_dir, device="cuda", reverse=False):
     """ reverse=False->loss, reverse=True->reward/score"""
     ckpts = os.listdir(join(model_dir, 'ckpt'))
     ckpt_matcher = re.compile('^ckpt-.*-[0-9]*')
@@ -48,7 +48,7 @@ def load_best_ckpt(model_dir, reverse=False):
                    key=lambda c: float(c.split('-')[1]), reverse=reverse)
     print('loading checkpoint {}...'.format(ckpts[0]))
     ckpt = torch.load(
-        join(model_dir, 'ckpt/{}'.format(ckpts[0]))
+        join(model_dir, 'ckpt/{}'.format(ckpts[0])),map_location=torch.device(device)
     )['state_dict']
     return ckpt
 
@@ -93,7 +93,7 @@ class Abstractor(object):
         dec_args, id2word = self._prepro(raw_article_sents)
         decs, attns = self._net.batch_decode(*dec_args)
         def argmax(arr, keys):
-            return arr[max(range(len(arr)), key=lambda i: keys[i].item())]
+            return arr[max(range(len(arr)-1), key=lambda i: keys[i].item())] # fixed size error
         dec_sents = []
         for i, raw_words in enumerate(raw_article_sents):
             dec = []
