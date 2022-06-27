@@ -1,4 +1,5 @@
 """ train the abstractor"""
+import gensim
 import argparse
 import json
 import os
@@ -23,17 +24,14 @@ from data.batcher import coll_fn, prepro_fn
 from data.batcher import convert_batch_copy, batchify_fn_copy
 from data.batcher import BucketedGenerater
 
-from utils import PAD, UNK, START, END
-from utils import make_vocab, make_embedding
+from utils.utils import PAD, UNK, START, END
+from utils.utils import make_vocab, make_embedding
 
 # NOTE: bucket size too large may sacrifice randomness,
 #       to low may increase # of PAD tokens
 BUCKET_SIZE = 6400
+DATA_DIR=None
 
-try:
-    DATA_DIR = os.environ['DATA']
-except KeyError:
-    print('please use environment variable to specify data directories')
 
 class MatchDataset(CnnDmDataset):
     """ single article sentence -> single abstract sentence
@@ -45,7 +43,7 @@ class MatchDataset(CnnDmDataset):
     def __getitem__(self, i):
         js_data = super().__getitem__(i)
         art_sents, abs_sents, extracts = (
-            js_data['article'], js_data['abstract'], js_data['extracted'])
+            js_data['article'], js_data['summary'], js_data['extracted'])
         matched_arts = [art_sents[i] for i in extracts]
         return matched_arts, abs_sents[:len(extracts)]
 
@@ -112,9 +110,12 @@ def build_batchers(word2id, cuda, debug):
 def main(args):
     # create data batcher, vocabulary
     # batcher
-    with open(join(DATA_DIR, 'vocab_cnt.pkl'), 'rb') as f:
-        wc = pkl.load(f)
-    word2id = make_vocab(wc, args.vsize)
+    w2v = gensim.models.Word2Vec.load(args.w2v)
+  
+    wc = []
+    for word in w2v.wv.vocab.items():
+        wc.append(word[0])
+    word2id = make_vocab(wc)
     train_batcher, val_batcher = build_batchers(word2id,
                                                 args.cuda, args.debug)
 
@@ -125,7 +126,7 @@ def main(args):
         # NOTE: the pretrained embedding having the same dimension
         #       as args.emb_dim should already be trained
         embedding, _ = make_embedding(
-            {i: w for w, i in word2id.items()}, args.w2v)
+            {i: w for w, i in word2id.items()}, w2v)
         net.set_embedding(embedding)
 
     # configure training setting
@@ -170,12 +171,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='training of the abstractor (ML)'
     )
+    parser.add_argument('--data_path', required=True, help='the folder containing the extracted labels splitted in train and val')
     parser.add_argument('--path', required=True, help='root of the model')
 
 
-    parser.add_argument('--vsize', type=int, action='store', default=30000,
+    parser.add_argument('--vsize', type=int, action='store', default=20000,
                         help='vocabulary size')
-    parser.add_argument('--emb_dim', type=int, action='store', default=128,
+    parser.add_argument('--emb_dim', type=int, action='store', default=300,
                         help='the dimension of word embedding')
     parser.add_argument('--w2v', action='store',
                         help='use pretrained word2vec embedding')
@@ -209,12 +211,13 @@ if __name__ == '__main__':
     parser.add_argument('--patience', type=int, action='store', default=5,
                         help='patience for early stopping')
 
-    parser.add_argument('--debug', action='store_true',
+    parser.add_argument('--no-debug', action='store_false', 
                         help='run in debugging mode')
     parser.add_argument('--no-cuda', action='store_true',
                         help='disable GPU training')
     args = parser.parse_args()
     args.bi = not args.no_bi
+    DATA_DIR=args.data_path
     args.cuda = torch.cuda.is_available() and not args.no_cuda
 
     main(args)
