@@ -41,7 +41,7 @@ class PtrExtractorRL(nn.Module):
         lstm_states = (self._init_h.unsqueeze(1), self._init_c.unsqueeze(1))
         for _ in range(n_step):
             h, c = self._lstm_cell(lstm_in, lstm_states)
-            query = h[:, -1, :]
+            query = h[-1, :, :] # fix : select last hidden layer
             for _ in range(self._n_hop):
                 query = PtrExtractorRL.attention(hop_feat, query,
                                                 self._hop_v, self._hop_wq)
@@ -101,7 +101,7 @@ class PtrExtractorRLStop(PtrExtractorRL):
         lstm_states = (self._init_h.unsqueeze(1), self._init_c.unsqueeze(1))
         while True:
             h, c = self._lstm_cell(lstm_in, lstm_states)
-            query = h[:, -1, :]
+            query = h[-1, :, :] # fix : select last hidden layer
             for _ in range(self._n_hop):
                 query = PtrExtractorRL.attention(hop_feat, query,
                                                 self._hop_v, self._hop_wq)
@@ -161,7 +161,7 @@ class PtrScorer(nn.Module):
         lstm_states = (self._init_h.unsqueeze(1), self._init_c.unsqueeze(1))
         for _ in range(n_step):
             h, c = self._lstm_cell(lstm_in, lstm_states)
-            query = h[:, -1, :]
+            query = h[-1, :, :] # fix : select last hidden layer
             for _ in range(self._n_hop):
                 query = PtrScorer.attention(hop_feat, hop_feat, query,
                                             self._hop_v, self._hop_wq)
