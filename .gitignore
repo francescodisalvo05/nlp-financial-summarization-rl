@@ -1,0 +1,17 @@
+.idea/*
+
+dataset/*
+dataset_filtered_full/*
+dataset_labels_full/*
+dataset_sample/*
+dataset_sample_small/*
+dataset_preprocessed_full/*
+
+dataset_sample/train/annual_reports/102.txt
+
+venv/*
+
+*.txt
+*.DS_Store
+*.zip
+*.pyc
