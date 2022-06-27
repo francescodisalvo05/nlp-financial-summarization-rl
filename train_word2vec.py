@@ -1,69 +1,47 @@
-""" pretrain a word2vec on the corpus"""
+from gensim.models import Word2Vec
+
 import argparse
-import json
 import logging
-import os
-from os.path import join, exists
-from time import time
-from datetime import timedelta
-
-from cytoolz import concatv
-import gensim
-
-from utils import count_data
+import sys
 
 
-try:
-    DATA_DIR = os.environ['DATA']
-except KeyError:
-    print('please use environment variable to specify data directories')
+def train_w2v(args):
 
-class Sentences(object):
-    """ needed for gensim word2vec training"""
-    def __init__(self):
-        self._path = join(DATA_DIR, 'train')
-        self._n_data = count_data(self._path)
+    logging.info(f"Extracting the full corpus from '{args.corpus_path}'...")
+    corpus = []
+    with open(args.corpus_path, "r", encoding="utf8") as f:
+        for line in f.readlines():
+            corpus.append(line.strip().split(" "))
 
-    def __iter__(self):
-        for i in range(self._n_data):
-            with open(join(self._path, '{}.json'.format(i))) as f:
-                data = json.loads(f.read())
-            for s in concatv(data['article'], data['abstract']):
-                yield ['<s>'] + s.lower().split() + [r'<\s>']
-
-
-def main(args):
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s',
-                        level=logging.INFO)
+    logging.info(f"Training w2v...")
     start = time()
-    save_dir = args.path
-    if not exists(save_dir):
-        os.makedirs(save_dir)
+    model = Word2Vec(corpus_filtered,
+                     sg=1, min_count=3, window=args.window,
+                     vector_size=args.vector_size, sample=6e-5, alpha=0.05,
+                     negative=20, workers=16, epochs=15)
+    logging.info(f"Training completed in {timedelta(seconds=time()-start)}...")
 
-    sentences = Sentences()
-    model = gensim.models.Word2Vec(
-        size=args.dim, min_count=5, workers=16, sg=1)
-    model.build_vocab(sentences)
-    print('vocab built in {}'.format(timedelta(seconds=time()-start)))
-    model.train(sentences,
-                total_examples=model.corpus_count, epochs=model.iter)
-
-    model.save(join(save_dir, 'word2vec.{}d.{}k.bin'.format(
-        args.dim, len(model.wv.vocab)//1000)))
-    model.wv.save_word2vec_format(join(
-        save_dir,
-        'word2vec.{}d.{}k.w2v'.format(args.dim, len(model.wv.vocab)//1000)
-    ))
-
-    print('word2vec trained in {}'.format(timedelta(seconds=time()-start)))
+    model.save(PATH_W2V)
+    logging.info(f"Model saved at '{args.destination_path}'")
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='train word2vec embedding used for model initialization'
-    )
-    parser.add_argument('--path', required=True, help='root of the model')
-    parser.add_argument('--dim', action='store', type=int, default=128)
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+
+    # directory settings
+    parser.add_argument('-c','--corpus_path', required=True, help='Path of the full corpus')
+    parser.add_argument('-d','--destination_path', required=True, help='Destination path of the w2c model')
+
+    # w2v hyperaparameters
+    parser.add_argument('--vector_size', type=int, default=300, help='Vector size of w2v')
+    parser.add_argument('--negative', type=int, default=20, help='Number of negative samples for w2v')
+    parser.add_argument('--window', type=int, default=2, help='Window size of w2v')
+    parser.add_argument('--epochs', type=int, default=15, help='Training epochs of w2v')
+
     args = parser.parse_args()
 
-    main(args)
+    logging.getLogger().setLevel(logging.INFO)
+
+    train_w2v(args)
