@@ -12,12 +12,13 @@ class CnnDmDataset(Dataset):
         assert split in ['train', 'val', 'test']
         self._data_path = join(path, split)
         self._n_data = _count_data(self._data_path)
+        self._dataset = os.listdir(self._data_path)
 
     def __len__(self) -> int:
         return self._n_data
 
-    def __getitem__(self, i: int):
-        with open(join(self._data_path, '{}.json'.format(i))) as f:
+    def __getitem__(self, idx: int):
+        with open(join(self._data_path, self._dataset[idx])) as f:
             js = json.loads(f.read())
         return js
 
