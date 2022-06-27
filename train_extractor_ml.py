@@ -1,4 +1,5 @@
 """ train extractor (ML)"""
+import gensim
 import argparse
 import json
 import os
@@ -18,8 +19,8 @@ from model.util import sequence_loss
 from training import get_basic_grad_fn, basic_validate
 from training import BasicPipeline, BasicTrainer
 
-from utils import PAD, UNK
-from utils import make_vocab, make_embedding
+from utils.utils import PAD, UNK
+from utils.utils import make_embedding
 
 from data.data import CnnDmDataset
 from data.batcher import coll_fn_extract, prepro_fn_extract
@@ -29,11 +30,7 @@ from data.batcher import BucketedGenerater
 
 
 BUCKET_SIZE = 6400
-
-try:
-    DATA_DIR = os.environ['DATA']
-except KeyError:
-    print('please use environment variable to specify data directories')
+DATA_DIR=None
 
 class ExtractDataset(CnnDmDataset):
     """ article sentences -> extraction indices
@@ -44,7 +41,7 @@ class ExtractDataset(CnnDmDataset):
 
     def __getitem__(self, i):
         js_data = super().__getitem__(i)
-        art_sents, extracts = js_data['article'], js_data['extracted']
+        art_sents, extracts = js_data['report'], js_data['extracted']
         return art_sents, extracts
 
 
@@ -124,9 +121,13 @@ def main(args):
     assert args.net_type in ['ff', 'rnn']
     # create data batcher, vocabulary
     # batcher
-    with open(join(DATA_DIR, 'vocab_cnt.pkl'), 'rb') as f:
-        wc = pkl.load(f)
-    word2id = make_vocab(wc, args.vsize)
+    w2v = gensim.models.Word2Vec.load(args.w2v)
+  
+    wc = []
+    for word in w2v.wv.vocab.items():
+        wc.append(word[0])
+    word2id = make_vocab(wc)
+
     train_batcher, val_batcher = build_batchers(args.net_type, word2id,
                                                 args.cuda, args.debug)
 
@@ -138,7 +139,7 @@ def main(args):
         # NOTE: the pretrained embedding having the same dimension
         #       as args.emb_dim should already be trained
         embedding, _ = make_embedding(
-            {i: w for w, i in word2id.items()}, args.w2v)
+            {i: w for w, i in word2id.items()}, w2v)
         net.set_embedding(embedding)
 
     # configure training setting
@@ -183,14 +184,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='training of the feed-forward extractor (ff-ext, ML)'
     )
+    parser.add_argument('--data_path', required=True, help='the folder containing the extracted labels splitted in train and val')
     parser.add_argument('--path', required=True, help='root of the model')
 
     # model options
     parser.add_argument('--net-type', action='store', default='rnn',
                         help='model type of the extractor (ff/rnn)')
-    parser.add_argument('--vsize', type=int, action='store', default=30000,
+    parser.add_argument('--vsize', type=int, action='store', default=20000,
                         help='vocabulary size')
-    parser.add_argument('--emb_dim', type=int, action='store', default=128,
+    parser.add_argument('--emb_dim', type=int, action='store', default=300,
                         help='the dimension of word embedding')
     parser.add_argument('--w2v', action='store',
                         help='use pretrained word2vec embedding')
@@ -198,7 +200,7 @@ if __name__ == '__main__':
                         help='the number of hidden units of Conv')
     parser.add_argument('--lstm_hidden', type=int, action='store', default=256,
                         help='the number of hidden units of lSTM')
-    parser.add_argument('--lstm_layer', type=int, action='store', default=1,
+    parser.add_argument('--lstm_layer', type=int, action='store', default=2,
                         help='the number of layers of LSTM Encoder')
     parser.add_argument('--no-bi', action='store_true',
                         help='disable bidirectional LSTM encoder')
@@ -217,7 +219,7 @@ if __name__ == '__main__':
                         help='patience for learning rate decay')
     parser.add_argument('--clip', type=float, action='store', default=2.0,
                         help='gradient clipping')
-    parser.add_argument('--batch', type=int, action='store', default=32,
+    parser.add_argument('--batch', type=int, action='store', default=16,
                         help='the training batch size')
     parser.add_argument(
         '--ckpt_freq', type=int, action='store', default=3000,
@@ -232,6 +234,7 @@ if __name__ == '__main__':
                         help='disable GPU training')
     args = parser.parse_args()
     args.bi = not args.no_bi
+    DATA_DIR=args.data_path
     args.cuda = torch.cuda.is_available() and not args.no_cuda
 
     main(args)
