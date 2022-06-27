@@ -29,11 +29,7 @@ from metric import compute_rouge_l, compute_rouge_n
 
 
 MAX_ABS_LEN = 30
-
-try:
-    DATA_DIR = os.environ['DATA']
-except KeyError:
-    print('please use environment variable to specify data directories')
+DATA_DIR = None
 
 
 class RLDataset(CnnDmDataset):
@@ -43,8 +39,8 @@ class RLDataset(CnnDmDataset):
 
     def __getitem__(self, i):
         js_data = super().__getitem__(i)
-        art_sents = js_data['article']
-        abs_sents = js_data['abstract']
+        art_sents = js_data['report']
+        abs_sents = js_data['summary']
         return art_sents, abs_sents
 
 def load_ext_net(ext_dir):
@@ -187,7 +183,7 @@ if __name__ == '__main__':
         description='program to demo a Seq2Seq model'
     )
     parser.add_argument('--path', required=True, help='root of the model')
-
+    parser.add_argument('--data_path', type=str, required=True, help='Path of the dataset')
 
     # model options
     parser.add_argument('--abs_dir', action='store',
@@ -224,5 +220,7 @@ if __name__ == '__main__':
                         help='disable GPU training')
     args = parser.parse_args()
     args.cuda = torch.cuda.is_available() and not args.no_cuda
+
+    DATA_DIR = data_path
 
     train(args)
