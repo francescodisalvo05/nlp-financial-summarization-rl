@@ -221,6 +221,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     args.cuda = torch.cuda.is_available() and not args.no_cuda
 
-    DATA_DIR = data_path
+    DATA_DIR = args.data_path
 
     train(args)
