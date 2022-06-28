@@ -100,7 +100,7 @@ def a2c_train_step(agent, abstractor, loader, opt, grad_fn,
     critic_loss = F.mse_loss(baseline, reward)
     # backprop and update
     autograd.backward(
-        [critic_loss] + losses,
+        [critic_loss.unsqueeze(0)] + losses,
         [torch.ones(1).to(critic_loss.device)]*(1+len(losses))
     )
     grad_log = grad_fn()
