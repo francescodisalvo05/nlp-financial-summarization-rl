@@ -43,7 +43,7 @@ class MatchDataset(CnnDmDataset):
     def __getitem__(self, i):
         js_data = super().__getitem__(i)
         art_sents, abs_sents, extracts = (
-            js_data['article'], js_data['summary'], js_data['extracted'])
+            js_data['report'], js_data['summary'], js_data['extracted'])
         matched_arts = [art_sents[i] for i in extracts]
         return matched_arts, abs_sents[:len(extracts)]
 
@@ -92,7 +92,7 @@ def build_batchers(word2id, cuda, debug):
     train_loader = DataLoader(
         MatchDataset('train'), batch_size=BUCKET_SIZE,
         shuffle=not debug,
-        num_workers=4 if cuda and not debug else 0,
+        num_workers=2 if cuda and not debug else 0,
         collate_fn=coll_fn
     )
     train_batcher = BucketedGenerater(train_loader, prepro, sort_key, batchify,
@@ -100,7 +100,7 @@ def build_batchers(word2id, cuda, debug):
 
     val_loader = DataLoader(
         MatchDataset('val'), batch_size=BUCKET_SIZE,
-        shuffle=False, num_workers=4 if cuda and not debug else 0,
+        shuffle=False, num_workers=2 if cuda and not debug else 0,
         collate_fn=coll_fn
     )
     val_batcher = BucketedGenerater(val_loader, prepro, sort_key, batchify,
@@ -117,7 +117,7 @@ def main(args):
         wc.append(word[0])
     word2id = make_vocab(wc)
     train_batcher, val_batcher = build_batchers(word2id,
-                                                args.cuda, args.debug)
+                                                args.cuda, args.no_debug)
 
     # make net
     net, net_args = configure_net(len(word2id), args.emb_dim,
@@ -211,9 +211,9 @@ if __name__ == '__main__':
     parser.add_argument('--patience', type=int, action='store', default=5,
                         help='patience for early stopping')
 
-    parser.add_argument('--no-debug', action='store_false', 
+    parser.add_argument('--no_debug', action='store_false', 
                         help='run in debugging mode')
-    parser.add_argument('--no-cuda', action='store_true',
+    parser.add_argument('--no_cuda', action='store_true',
                         help='disable GPU training')
     args = parser.parse_args()
     args.bi = not args.no_bi
