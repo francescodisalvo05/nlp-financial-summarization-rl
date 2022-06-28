@@ -3,6 +3,8 @@ from gensim.models import Word2Vec
 import argparse
 import logging
 import sys
+from time import time
+from datetime import timedelta
 
 
 def train_w2v(args):
@@ -15,13 +17,13 @@ def train_w2v(args):
 
     logging.info(f"Training w2v...")
     start = time()
-    model = Word2Vec(corpus_filtered,
+    model = Word2Vec(corpus,
                      sg=1, min_count=3, window=args.window,
-                     vector_size=args.vector_size, sample=6e-5, alpha=0.05,
-                     negative=20, workers=16, epochs=15)
+                     size=args.vector_size, sample=6e-5, alpha=0.05,
+                     negative=20, workers=16, iter=15)  # pay attention to the version, in case of new ones size->vector_size iter->epochs
     logging.info(f"Training completed in {timedelta(seconds=time()-start)}...")
 
-    model.save(PATH_W2V)
+    model.save(args.destination_path)
     logging.info(f"Model saved at '{args.destination_path}'")
 
 
