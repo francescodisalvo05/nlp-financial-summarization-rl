@@ -20,7 +20,7 @@ from training import get_basic_grad_fn, basic_validate
 from training import BasicPipeline, BasicTrainer
 
 from utils.utils import PAD, UNK
-from utils.utils import make_embedding
+from utils.utils import make_embedding,make_vocab
 
 from data.data import CnnDmDataset
 from data.batcher import coll_fn_extract, prepro_fn_extract
@@ -61,7 +61,7 @@ def build_batchers(net_type, word2id, cuda, debug):
     train_loader = DataLoader(
         ExtractDataset('train'), batch_size=BUCKET_SIZE,
         shuffle=not debug,
-        num_workers=4 if cuda and not debug else 0,
+        num_workers=2 if cuda and not debug else 0,
         collate_fn=coll_fn_extract
     )
     train_batcher = BucketedGenerater(train_loader, prepro, sort_key, batchify,
@@ -69,7 +69,7 @@ def build_batchers(net_type, word2id, cuda, debug):
 
     val_loader = DataLoader(
         ExtractDataset('val'), batch_size=BUCKET_SIZE,
-        shuffle=False, num_workers=4 if cuda and not debug else 0,
+        shuffle=False, num_workers=2 if cuda and not debug else 0,
         collate_fn=coll_fn_extract
     )
     val_batcher = BucketedGenerater(val_loader, prepro, sort_key, batchify,
