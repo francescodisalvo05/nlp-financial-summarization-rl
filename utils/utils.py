@@ -27,10 +27,11 @@ def make_vocab(wc):
     word2id['<unk>'] = UNK
     word2id['<SOS>'] = START
     word2id['<END>'] = END
-    for i, w in enumerate(wc, 4):
-        # avoid duplicates -> they are on the vocab
-        if w != '<SOS>' and w!='<EOS>':
-            word2id[w] = i
+    i = 4
+    for w in wc:
+      if w != '<SOS>' and w!='<EOS>':
+        word2id[w] = i
+        i += 1
     return word2id
 
 
