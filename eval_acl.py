@@ -2,7 +2,7 @@
 import argparse
 from os.path import join, abspath, dirname, exists
 
-from evaluate import eval_meteor, eval_rouge
+from evaluate_ import eval_meteor, eval_rouge
 
 
 _REF_DIR = join(abspath(dirname(__file__)), 'acl18_results')

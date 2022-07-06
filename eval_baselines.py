@@ -5,7 +5,7 @@ import re
 import os
 from os.path import join, exists
 
-from evaluate import eval_meteor, eval_rouge
+from evaluate_ import eval_meteor, eval_rouge
 
 
 try:
