@@ -6,5 +6,5 @@
 
 venv
 
-.zip
-.model
+*.zip
+*.model
