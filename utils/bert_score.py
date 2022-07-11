@@ -118,7 +118,7 @@ def create_label(bert, report_path, summaries_path, destination_path):
             # to the summary.
 
             # extracted_sent will be the idx of the selected report summary ?
-            bert_score, extracted_sent = get_rougberte_score(curr_data['report'], sentence, bert)
+            bert_score, extracted_sent = get_bert_score(curr_data['report'], sentence, bert)
 
             curr_data['extracted'].append(extracted_sent)
             curr_data['score'].append(bert_score)
@@ -143,7 +143,7 @@ def get_bert_score(report, summary_sentence, bert):
     max_idx = -1
 
 
-    for idx, report_sentence in enumerate(report):
+    for idx, report_sentence in enumerate(report[:300]):
 
         report_sentence = re.sub(r" <EOS> ", "", report_sentence)
         report_sentence = re.sub(r" <SOS> ", "", report_sentence)
@@ -155,9 +155,12 @@ def get_bert_score(report, summary_sentence, bert):
         try:
             predictions.append(report_sentence)
             references.append(summary_sentence)
+            bert_score = bert.compute(predictions=predictions, references=references, lang="en")
 
-            bert_score = bertscore.compute(predictions=predictions, references=references, lang="en")
+           
+            
 
+            # print(bert_score["recall"][0])
             predictions.clear()
             references.clear()
 
