@@ -139,7 +139,7 @@ def main(args):
         # NOTE: the pretrained embedding having the same dimension
         #       as args.emb_dim should already be trained
         embedding, _ = make_embedding(
-            {i: w for w, i in word2id.items()}, w2v)
+            {i: w for w, i in word2id.items()}, w2v, args.emb_dim)
         net.set_embedding(embedding)
 
     # configure training setting
