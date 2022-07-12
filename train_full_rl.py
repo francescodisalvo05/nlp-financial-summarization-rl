@@ -33,15 +33,39 @@ DATA_DIR = None
 
 
 class RLDataset(CnnDmDataset):
-    """ get the article sentences only (for decoding use)"""
-    def __init__(self, split):
+    def __init__(self, split, n_sentences):
         super().__init__(split, DATA_DIR)
+        self._n_sentences = n_sentences
 
     def __getitem__(self, i):
         js_data = super().__getitem__(i)
-        art_sents = js_data['report']
-        abs_sents = js_data['summary']
+
+        # take all the sentences
+        if not self._n_sentences:
+            art_sents = js_data['report']
+            abs_sents = js_data['summary']
+
+        # take the first "_n_sentences"
+        # and filter out the ones extracted that are
+        # greater than _n_sentences
+        else:
+            extracted = js_data['extracted']
+
+            art_sents = js_data['report'][:self._n_sentences]
+            abs_sents = []
+
+            for idx,ex in enumerate(extracted):
+                if ex < len(art_sents):
+                    # we're not interested on the scores
+                    abs_sents.append(js_data['summary'][idx])
+
+            # edge case: no extracted sentences below the threshold
+            # -> pick directly the summary instead of "rejecting" the data
+            if not abs_sents:
+                abs_sents = js_data['summary']
+
         return art_sents, abs_sents
+
 
 def load_ext_net(ext_dir):
     ext_meta = json.load(open(join(ext_dir, 'meta.json')))
@@ -104,12 +128,12 @@ def build_batchers(batch_size):
         abs_sents = list(filter(bool, map(tokenize(None), abs_batch)))
         return art_sents, abs_sents
     loader = DataLoader(
-        RLDataset('train'), batch_size=batch_size,
+        RLDataset('train',args.n_sentences), batch_size=batch_size,
         shuffle=True, num_workers=4,
         collate_fn=coll
     )
     val_loader = DataLoader(
-        RLDataset('val'), batch_size=batch_size,
+        RLDataset('val',args.n_sentences), batch_size=batch_size,
         shuffle=False, num_workers=4,
         collate_fn=coll
     )
@@ -194,6 +218,8 @@ if __name__ == '__main__':
                         help='ckeckpoint used decode')
 
     # training options
+    parser.add_argument('--n_sentences', action='store', default=None, type=int,
+                        help='maximum number of sentences for each document')
     parser.add_argument('--reward', action='store', default='rouge-l',
                         help='reward function for RL')
     parser.add_argument('--lr', type=float, action='store', default=1e-4,
