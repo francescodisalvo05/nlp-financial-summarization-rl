@@ -16,7 +16,7 @@ from metric import compute_rouge_l, compute_rouge_n
 from training import BasicPipeline
 
 
-def a2c_validate(agent, abstractor, loader):
+def a2c_validate(agent, abstractor, loader, bertscore):
     agent.eval()
     start = time()
     print('start running validation...', end='')
@@ -34,9 +34,19 @@ def a2c_validate(agent, abstractor, loader):
             all_summs = abstractor(ext_sents)
             for (j, n), abs_sents in zip(ext_inds, abs_batch):
                 summs = all_summs[j:j+n]
-                # python ROUGE-1 (not official evaluation)
-                avg_reward += compute_rouge_n(list(concat(summs)),
-                                              list(concat(abs_sents)), n=2) # take bi-grams -> paper choice
+
+                if bertscore:
+                    predictions_sentence = ' '.join(concat(summs))
+                    predictions_sentence = predictions_sentence.replace("<sos>", "").replace("<eos>", "")
+                    references_sentence = ' '.join(concat(abs_sents))
+                    references_sentence = references_sentence.replace("<sos>", "").replace("<eos>", "")
+
+                    bert_score = bertscore.compute(predictions=[predictions_sentence], references=[references_sentence],lang="en")
+                    avg_reward += bert_score["recall"][0]
+
+                else:
+                    avg_reward += compute_rouge_n(list(concat(summs)),
+                                                  list(concat(abs_sents)), n=2) # take bi-grams -> paper choice
                 i += 1
     avg_reward /= (i/100)
     print('finished in {}! avg reward: {:.2f}'.format(
@@ -143,7 +153,7 @@ class A2CPipeline(BasicPipeline):
                  train_batcher, val_batcher,
                  optim, grad_fn,
                  reward_fn, gamma,
-                 stop_reward_fn, stop_coeff):
+                 stop_reward_fn, stop_coeff, bertscore):
         self.name = name
         self._net = net
         self._train_batcher = train_batcher
@@ -156,6 +166,7 @@ class A2CPipeline(BasicPipeline):
         self._reward_fn = reward_fn
         self._stop_reward_fn = stop_reward_fn
         self._stop_coeff = stop_coeff
+        self._bertscore = bertscore
 
         self._n_epoch = 0  # epoch not very useful?
 
@@ -175,7 +186,7 @@ class A2CPipeline(BasicPipeline):
         return log_dict
 
     def validate(self):
-        return a2c_validate(self._net, self._abstractor, self._val_batcher)
+        return a2c_validate(self._net, self._abstractor, self._val_batcher, self._bertscore)
 
     def checkpoint(self, *args, **kwargs):
         # explicitly use inherited function in case I forgot :)

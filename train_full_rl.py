@@ -25,8 +25,9 @@ from rl import get_grad_fn
 from rl import A2CPipeline
 from decoding import load_best_ckpt
 from decoding import Abstractor, ArticleBatcher
-from metric import compute_rouge_l, compute_rouge_n
+from metric import compute_rouge_l, compute_rouge_n, compute_bert_score
 
+from evaluate import load
 
 MAX_ABS_LEN = 30
 DATA_DIR = None
@@ -155,9 +156,16 @@ def train(args):
         args.gamma, args.reward, args.stop, 'rouge-1'
     )
     train_batcher, val_batcher = build_batchers(args.batch)
-    # TODO different reward
-    reward_fn = compute_rouge_l
-    stop_reward_fn = compute_rouge_n(n=1)
+
+    if args.reward == "rouge":
+        reward_fn = compute_rouge_l
+        stop_reward_fn = compute_rouge_n(n=1)
+        bertscore = None
+
+    elif args.reward == "bert":
+        bertscore = load("bertscore")
+        reward_fn = compute_bert_score(bertscore=bertscore)
+        stop_reward_fn = compute_bert_score(bertscore=bertscore)
 
     # save abstractor binary
     if args.abs_dir is not None:
@@ -192,7 +200,7 @@ def train(args):
                            train_batcher, val_batcher,
                            optimizer, grad_fn,
                            reward_fn, args.gamma,
-                           stop_reward_fn, args.stop)
+                           stop_reward_fn, args.stop, bertscore)
     trainer = BasicTrainer(pipeline, args.path,
                            args.ckpt_freq, args.patience, scheduler,
                            val_mode='score')
@@ -220,7 +228,7 @@ if __name__ == '__main__':
     # training options
     parser.add_argument('--n_sentences', action='store', default=None, type=int,
                         help='maximum number of sentences for each document')
-    parser.add_argument('--reward', action='store', default='rouge-l',
+    parser.add_argument('--reward', action='store', default='rouge', choices=['rouge','bert'],
                         help='reward function for RL')
     parser.add_argument('--lr', type=float, action='store', default=1e-4,
                         help='learning rate')
