@@ -79,7 +79,7 @@ def main(args, cuda):
         abs_sents = list(filter(bool, map(tokenize(None), abs_batch)))
         return art_sents, abs_sents
 
-    dataset = InferenceDataset('val', args.n_sentences)
+    dataset = InferenceDataset('test', args.n_sentences)
     loader = DataLoader(
         dataset, batch_size=args.batch_size, shuffle=False, num_workers=0,
         collate_fn=coll
