@@ -25,8 +25,8 @@ from data.batcher import tokenize
 from data.data import CnnDmDataset
 from decoding import Abstractor, RLExtractor, DecodeDataset, BeamAbstractor
 
-from metric import compute_rouge_n, compute_rouge_l_summ
-
+from metric import compute_rouge_n, compute_rouge_l_summ,compute_bert_score
+from evaluate import load
 
 DATA_DIR = None
 
@@ -71,13 +71,15 @@ class InferenceDataset(CnnDmDataset):
 
 def main(args, cuda):
 
+    bertscore = load("bertscore")
+
     def coll(batch):
         art_batch, abs_batch = unzip(batch)
         art_sents = list(filter(bool, map(tokenize(None), art_batch)))
         abs_sents = list(filter(bool, map(tokenize(None), abs_batch)))
         return art_sents, abs_sents
 
-    dataset = InferenceDataset('test', args.n_sentences)
+    dataset = InferenceDataset('val', args.n_sentences)
     loader = DataLoader(
         dataset, batch_size=args.batch_size, shuffle=False, num_workers=0,
         collate_fn=coll
@@ -142,9 +144,16 @@ def main(args, cuda):
                 # evaluation
                 rouge_2.append(compute_rouge_n(list(concat(decoded_outputs)), list(concat(reference)), n=2))
                 rouge_l.append(compute_rouge_l_summ(decoded_outputs, reference))
+                
+                decoded_sent = ' '.join(concat(decoded_outputs))
+                decoded_sent = decoded_sent.replace("<sos>","").replace("<eos>","")
 
+                reference_sent = ' '.join(concat(reference))
+                reference_sent = reference_sent.replace("<sos>","").replace("<eos>","")
+                
                 # to do
-                # bert_scores.append()
+                b_score = bertscore.compute(predictions= [decoded_sent], references = [reference_sent], lang="en")
+                bert_scores.append(b_score["f1"][0])
 
                 # postprocess output sentences
                 cleaned_decoded_sentences = []
@@ -158,7 +167,7 @@ def main(args, cuda):
 
     print(f'Rouge-2: {np.mean(np.asarray(rouge_2))}')
     print(f'Rouge-l: {np.mean(np.asarray(rouge_l))}')
-    # print(f'BERTScore: {mean(bert_scores)}')
+    print(f'BERTScore: {np.mean(bert_scores)}')
 
 
 if __name__ == '__main__':
