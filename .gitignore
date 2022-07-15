@@ -4,6 +4,8 @@
 *.DS_Store
 .idea
 
+fns.egg-info
+
 venv
 
 *.zip
