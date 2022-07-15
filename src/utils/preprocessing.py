@@ -17,7 +17,7 @@ import numpy as np
 logging.getLogger().setLevel(logging.INFO)
 
 
-def clean_pipeline(dataset_path, reports_folder, summaries_folder, preprocessed_path, corpus_filename, split, nlp):
+def clean_pipeline(dataset_path, reports_folder, summaries_folder, preprocessed_path, corpus_filename, split):
     """Setup the directories, preprocess the text and save the cleaned ones at <preprocessed_path>. Moreover, for
     training reports, the full corpus will be saved in order to train w2v.
     :param dataset_path: (str) path of the root dataset
@@ -42,10 +42,10 @@ def clean_pipeline(dataset_path, reports_folder, summaries_folder, preprocessed_
         os.makedirs(PATH_SUMMARIES_PREPROCESSED)
 
     logging.info(f"Cleaning {split} input reports...")
-    clean_files(PATH_REPORTS, PATH_REPORTS_PREPROCESSED, PATH_CORPUS, nlp)
+    clean_files(PATH_REPORTS, PATH_REPORTS_PREPROCESSED, PATH_CORPUS)
 
     logging.info(f"Cleaning {split} input gold summaries...")
-    clean_files(PATH_SUMMARIES, PATH_SUMMARIES_PREPROCESSED, PATH_CORPUS, nlp)
+    clean_files(PATH_SUMMARIES, PATH_SUMMARIES_PREPROCESSED, PATH_CORPUS)
 
 
 def filter_pipeline(preprocessed_path, reports_folder, summaries_folder, filtered_path, corpus_filename,
@@ -72,7 +72,7 @@ def filter_pipeline(preprocessed_path, reports_folder, summaries_folder, filtere
     return tokens_to_filter
 
 
-def clean_files(input_path, destination_path, corpus_path, nlp):
+def clean_files(input_path, destination_path, corpus_path):
     """
     Read all the files in the input directory and clean them all sentence by sentence.
     Then, appen the full corpus at <corpus_path> and store the cleaned sentences to
@@ -81,7 +81,6 @@ def clean_files(input_path, destination_path, corpus_path, nlp):
     :param destination_path: (str) path of the directory where all the preprocessed files will be stored
     :param corpus_path: (str) path of the full corpus to update. For the validation set, test set and golden summaries it
                                  will be None, therefore do not write
-    :param nlp: (spacy)
     :return:
     """
 
@@ -98,12 +97,6 @@ def clean_files(input_path, destination_path, corpus_path, nlp):
         report_file = ftfy.fix_text(report_file)  # fix text through encoding
         report_file = report_file.replace('\n', '')  # remove \n
         report_file = report_file.replace('\t', ' ')  # remove \t
-
-        '''
-        # Spacy's max length
-        if len(report_file) > 150000:
-            report_file = report_file[:150000]
-        '''
 
         sentences = sent_tokenize(report_file)
 

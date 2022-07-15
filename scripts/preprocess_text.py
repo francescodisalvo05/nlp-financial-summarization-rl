@@ -2,17 +2,10 @@ from src.utils.preprocessing import clean_pipeline, filter_pipeline
 
 import argparse
 import logging
-import spacy
 import os
 
 
 def main(args):
-
-    # # # set SPACY
-    logging.info("Setting up SPACY...")
-    nlp = spacy.load("en_core_web_sm")
-    nlp.max_length = 150000
-
 
     if not os.path.exists(args.preprocessed_path):
         os.makedirs(args.preprocessed_path)
@@ -23,7 +16,7 @@ def main(args):
     # train
     clean_pipeline(args.dataset_path, args.reports_folder,
                    args.summaries_folder, args.preprocessed_path,
-                   'full_corpus.txt', 'train', nlp)
+                   'full_corpus.txt', 'train')
 
     filter_pipeline(args.preprocessed_path, args.reports_folder,
                        args.summaries_folder, args.filtered_path,
@@ -33,7 +26,7 @@ def main(args):
     # validation
     clean_pipeline(args.dataset_path, args.reports_folder,
                    args.summaries_folder, args.preprocessed_path,
-                   None, 'val', nlp)
+                   None, 'val')
 
     filter_pipeline( args.preprocessed_path, args.reports_folder,
                      args.summaries_folder, args.filtered_path,
@@ -43,7 +36,7 @@ def main(args):
     # test
     clean_pipeline(args.dataset_path, args.reports_folder,
                    args.summaries_folder, args.preprocessed_path,
-                   None, 'test', nlp)
+                   None, 'test')
 
     filter_pipeline(args.preprocessed_path, args.reports_folder,
                         args.summaries_folder, args.filtered_path,
