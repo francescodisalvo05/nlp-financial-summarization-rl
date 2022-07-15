@@ -10,12 +10,12 @@ from cytoolz import curry
 
 import torch
 
-from utils.utils import PAD, UNK, START, END
-from model.copy_summ import CopySumm
-from model.extract import ExtractSumm, PtrExtractSumm
-from model.rl import ActorCritic
-from data.batcher import conver2id, pad_batch_tensorize
-from data.data import CnnDmDataset
+from src.utils.utils import PAD, UNK, START, END
+from src.model.copy_summ import CopySumm
+from src.model.extract import ExtractSumm, PtrExtractSumm
+from src.model.rl import ActorCritic
+from src.data.batcher import conver2id, pad_batch_tensorize
+from src.data.data import CnnDmDataset
 
 
 try:

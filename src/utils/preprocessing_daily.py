@@ -57,7 +57,7 @@ def clean_pipeline(dataset, destination_path, corpus_filename, split):
             # | ---- summaries
 
             text = preprocess_text(dataset['article'][idx], corpus_path, max_tokens=800)
-            summary = preprocess_text(dataset['highlights'][idx], corpus_path, max_tokens=800100)
+            summary = preprocess_text(dataset['highlights'][idx], corpus_path, max_tokens=100)
 
             # save text
             with open(os.path.join(destination_path,split,'texts',f'{str(idx+1).zfill(2)}.txt'), 'w+') as t:

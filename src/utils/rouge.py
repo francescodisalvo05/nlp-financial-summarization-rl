@@ -59,7 +59,8 @@ def get_matching_summaries(reports_path, summaries_path):
     dataset_index = defaultdict(list)
     # add each summary to its report array
     for summary in os.listdir(summaries_path):
-        id = summary.split("_")[0] + '.txt'
+
+        id = summary.split("_")[0] + '.txt' if '_' in summary else summary
         path_id = os.path.join(reports_path, id)
         dataset_index[path_id].append(os.path.join(summaries_path, summary))
 
@@ -91,8 +92,6 @@ def create_label(rouge, report_path, summaries_path, destination_path):
         'score': []
     }
 
-
-
     # read report
     with open(report_path, 'r', encoding="utf-8") as f_report:
         curr_data['report'] = f_report.readlines()
@@ -118,18 +117,22 @@ def create_label(rouge, report_path, summaries_path, destination_path):
             # to the summary.
 
             # extracted_sent will be the idx of the selected report summary ?
-            rouge_score, extracted_sent = get_rouge_score(curr_data['report'], sentence, rouge)
+            rouge_scores, extracted_sents = get_rouge_score(curr_data['report'], sentence, rouge, 5)
 
-            curr_data['extracted'].append(extracted_sent)
-            curr_data['score'].append(rouge_score)
+            curr_data['extracted'].extend(extracted_sents)
+            curr_data['score'].extend(rouge_scores)
 
         # dump the best results on the provided directory
         summary_filepath = summary_path.split("/")[-1].split(".")[0]
+
+        curr_data['extracted'] = curr_data['extracted']
+        curr_data['score'] = curr_data['score']
+
         with open(os.path.join(destination_path, f'{summary_filepath}.json'), 'w') as f:
             json.dump(curr_data, f, indent=4)
 
 
-def get_rouge_score(report, summary_sentence, rouge):
+def get_rouge_score(report, summary_sentence, rouge, n_sentences=1):
     """Compute the rouge-l score for a given sentence of the summary
     with respect to all the sentences on the report
     :param sentence: (str) sentence extracted from the full report
@@ -138,9 +141,8 @@ def get_rouge_score(report, summary_sentence, rouge):
     :return: best summary for the given sentence and its maximum rouge score
     """
 
-    score = -1
-    max_idx = -1
-
+    scores = []
+    sentence_ids = []
 
     for idx, report_sentence in enumerate(report):
 
@@ -161,8 +163,12 @@ def get_rouge_score(report, summary_sentence, rouge):
             print("=========")
             print('Report sentence = ', report_sentence)
 
-        if score_rouge[0]["rouge-l"]["f"] > score:
-            score = score_rouge[0]["rouge-l"]["f"]
-            max_idx = idx
+        scores.append(score_rouge[0]["rouge-l"]["f"])
+        sentence_ids.append(idx)
 
-    return round(score, 2), max_idx
+    keep_indices = [i[0] for i in sorted(enumerate(scores), key=lambda k: k[1], reverse=True)][:n_sentences]
+
+    final_scores = [round(scores[idx],2) for idx in keep_indices]
+    final_ids = [sentence_ids[idx] for idx in keep_indices]
+
+    return final_scores, final_ids
