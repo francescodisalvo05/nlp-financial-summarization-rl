@@ -14,8 +14,8 @@ from torch import optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 
-from data.data import CnnDmDataset
-from data.batcher import tokenize
+from src.data.data import CnnDmDataset
+from src.data.batcher import tokenize
 
 from src.model.rl import ActorCritic
 from src.model.extract import PtrExtractSumm
