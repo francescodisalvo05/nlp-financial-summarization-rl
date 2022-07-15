@@ -123,7 +123,7 @@ def create_label(rouge, report_path, summaries_path, destination_path):
             curr_data['score'].extend(rouge_scores)
 
         # dump the best results on the provided directory
-        summary_filepath = summary_path.split("/")[-1].split(".")[0]
+        summary_filepath = summary_path.split("/")[-1].split(".")[0].split("_")[0] # remove '_'
 
         curr_data['extracted'] = curr_data['extracted']
         curr_data['score'] = curr_data['score']

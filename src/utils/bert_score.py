@@ -124,7 +124,8 @@ def create_label(bert, report_path, summaries_path, destination_path):
             curr_data['score'].append(bert_score)
 
         # dump the best results on the provided directory
-        summary_filepath = summary_path.split("/")[-1].split(".")[0]
+        summary_filepath = summary_path.split("/")[-1].split(".")[0].split("_")[0]
+
         with open(os.path.join(destination_path, f'{summary_filepath}.json'), 'w') as f:
             json.dump(curr_data, f, indent=4)
 
@@ -157,10 +158,6 @@ def get_bert_score(report, summary_sentence, bert):
             references.append(summary_sentence)
             bert_score = bert.compute(predictions=predictions, references=references, lang="en")
 
-           
-            
-
-            # print(bert_score["recall"][0])
             predictions.clear()
             references.clear()
 
@@ -170,8 +167,8 @@ def get_bert_score(report, summary_sentence, bert):
             print("=========")
             print('Report sentence = ', report_sentence)
 
-        if bert_score["recall"][0] > score:
-            score = bert_score["recall"][0]
+        if bert_score["f1"][0] > score:
+            score = bert_score["f1"][0]
             max_idx = idx
 
     return round(score, 2), max_idx
