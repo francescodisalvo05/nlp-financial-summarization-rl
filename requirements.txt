@@ -3,3 +3,12 @@ gensim
 tensorboardX
 cytoolz
 pyrouge
+sklearn
+nltk
+ftfy
+rouge
+evaluate
+bert_score
+gensim==3.6.0
+cytoolz
+torch
