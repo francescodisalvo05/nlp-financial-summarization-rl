@@ -17,21 +17,20 @@ from torch.utils.data import DataLoader
 from data.data import CnnDmDataset
 from data.batcher import tokenize
 
-from model.rl import ActorCritic
-from model.extract import PtrExtractSumm
+from src.model.rl import ActorCritic
+from src.model.extract import PtrExtractSumm
 
-from training import BasicTrainer
+from src.model.training import BasicTrainer
 from rl import get_grad_fn
 from rl import A2CPipeline
-from decoding import load_best_ckpt
-from decoding import Abstractor, ArticleBatcher
-from metric import compute_rouge_l, compute_rouge_n, compute_bert_score
+from src.utils.decoding import load_best_ckpt
+from src.utils.decoding import Abstractor, ArticleBatcher
+from src.utils.metric import compute_rouge_l, compute_rouge_n, compute_bert_score
 
 from evaluate import load
 
 MAX_ABS_LEN = 30
 DATA_DIR = None
-
 
 class RLDataset(CnnDmDataset):
     def __init__(self, split, n_sentences):

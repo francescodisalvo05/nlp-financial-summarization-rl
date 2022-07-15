@@ -21,11 +21,11 @@ import torch
 from torch.utils.data import DataLoader
 from torch import multiprocessing as mp
 
-from data.batcher import tokenize
-from data.data import CnnDmDataset
-from decoding import Abstractor, RLExtractor, DecodeDataset, BeamAbstractor
+from src.data.batcher import tokenize
+from src.data.data import CnnDmDataset
+from src.utils.decoding import Abstractor, RLExtractor, DecodeDataset, BeamAbstractor
+from src.utils.metric import compute_rouge_n, compute_rouge_l_summ,compute_bert_score
 
-from metric import compute_rouge_n, compute_rouge_l_summ,compute_bert_score
 from evaluate import load
 
 DATA_DIR = None

@@ -14,19 +14,19 @@ from torch.nn import functional as F
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 
-from model.extract import ExtractSumm, PtrExtractSumm
-from model.util import sequence_loss
-from training import get_basic_grad_fn, basic_validate
-from training import BasicPipeline, BasicTrainer
+from src.model.extract import ExtractSumm, PtrExtractSumm
+from src.model.util import sequence_loss
+from src.model.training import get_basic_grad_fn, basic_validate
+from src.model.training import BasicPipeline, BasicTrainer
 
-from utils.utils import PAD, UNK
-from utils.utils import make_embedding,make_vocab
+from src.utils.utils import PAD, UNK
+from src.utils.utils import make_embedding,make_vocab
 
-from data.data import CnnDmDataset
-from data.batcher import coll_fn_extract, prepro_fn_extract
-from data.batcher import convert_batch_extract_ff, batchify_fn_extract_ff
-from data.batcher import convert_batch_extract_ptr, batchify_fn_extract_ptr
-from data.batcher import BucketedGenerater
+from src.data.data import CnnDmDataset
+from src.data.batcher import coll_fn_extract, prepro_fn_extract
+from src.data.batcher import convert_batch_extract_ff, batchify_fn_extract_ff
+from src.data.batcher import convert_batch_extract_ptr, batchify_fn_extract_ptr
+from src.data.batcher import BucketedGenerater
 
 
 BUCKET_SIZE = 6400

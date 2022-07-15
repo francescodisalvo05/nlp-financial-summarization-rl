@@ -1,9 +1,8 @@
 from datasets import load_dataset
 
-from utils.preprocessing_daily import clean_pipeline
+from src.utils.preprocessing_daily import clean_pipeline
 
 import logging
-
 import argparse
 
 

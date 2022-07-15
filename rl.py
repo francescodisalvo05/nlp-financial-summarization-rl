@@ -12,8 +12,8 @@ from torch.nn import functional as F
 from torch import autograd
 from torch.nn.utils import clip_grad_norm_
 
-from metric import compute_rouge_l, compute_rouge_n
-from training import BasicPipeline
+from src.utils.metric import compute_rouge_l, compute_rouge_n
+from src.model.training import BasicPipeline
 
 
 def a2c_validate(agent, abstractor, loader, bertscore):

@@ -1,4 +1,4 @@
-from utils.preprocessing import clean_pipeline, filter_pipeline
+from src.utils.preprocessing import clean_pipeline, filter_pipeline
 
 import argparse
 import logging

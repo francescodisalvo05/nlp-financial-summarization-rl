@@ -10,11 +10,8 @@ from rouge import Rouge
 from evaluate import load
 from tqdm import tqdm
 
-from utils.rouge import rouge_pipeline
-from utils.bleu import bleu_pipeline
-from utils.bert_score import bert_pipeline
-
-
+from src.utils.rouge import rouge_pipeline
+from src.utils.bert_score import bert_pipeline
 
 def main(args):
 

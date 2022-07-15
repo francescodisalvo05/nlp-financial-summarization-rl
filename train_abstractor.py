@@ -16,16 +16,16 @@ from torch.utils.data import DataLoader
 
 from model.copy_summ import CopySumm
 from model.util import sequence_loss
-from training import get_basic_grad_fn, basic_validate
-from training import BasicPipeline, BasicTrainer
+from model.training import get_basic_grad_fn, basic_validate
+from model.training import BasicPipeline, BasicTrainer
 
-from data.data import CnnDmDataset
-from data.batcher import coll_fn, prepro_fn
-from data.batcher import convert_batch_copy, batchify_fn_copy
-from data.batcher import BucketedGenerater
+from src.data.data import CnnDmDataset
+from src.data.batcher import coll_fn, prepro_fn
+from src.data.batcher import convert_batch_copy, batchify_fn_copy
+from src.data.batcher import BucketedGenerater
 
-from utils.utils import PAD, UNK, START, END
-from utils.utils import make_vocab, make_embedding
+from src.utils.utils import PAD, UNK, START, END
+from src.utils.utils import make_vocab, make_embedding
 
 # NOTE: bucket size too large may sacrifice randomness,
 #       to low may increase # of PAD tokens
