@@ -42,7 +42,7 @@ def a2c_validate(agent, abstractor, loader, bertscore):
                     references_sentence = references_sentence.replace("<sos>", "").replace("<eos>", "")
 
                     bert_score = bertscore.compute(predictions=[predictions_sentence], references=[references_sentence],lang="en")
-                    avg_reward += bert_score["recall"][0]
+                    avg_reward += bert_score["f1"][0]
 
                 else:
                     avg_reward += compute_rouge_n(list(concat(summs)),

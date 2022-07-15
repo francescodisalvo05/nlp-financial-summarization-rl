@@ -14,10 +14,10 @@ from torch.nn import functional as F
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 
-from model.copy_summ import CopySumm
-from model.util import sequence_loss
-from model.training import get_basic_grad_fn, basic_validate
-from model.training import BasicPipeline, BasicTrainer
+from src.model.copy_summ import CopySumm
+from src.model.util import sequence_loss
+from src.model.training import get_basic_grad_fn, basic_validate
+from src.model.training import BasicPipeline, BasicTrainer
 
 from src.data.data import CnnDmDataset
 from src.data.batcher import coll_fn, prepro_fn

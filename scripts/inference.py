@@ -89,6 +89,9 @@ def main(args, cuda):
     with open(join(args.model_dir + '/meta.json')) as f:
         meta = json.loads(f.read())
 
+    if args.mode == 'extractor':
+        meta['net_args']['abstractor'] = None
+
     if meta['net_args']['abstractor'] is None:
         # NOTE: if no abstractor is provided then
         #       the whole model would be extractive summarization
@@ -110,8 +113,8 @@ def main(args, cuda):
     with open(join(args.output_path, 'log.json'), 'w') as f:
         json.dump(dec_log, f, indent=4)
 
-    # setuo scores
-    rouge_2, rouge_l, bert_scores = [], [], []
+    # setup scores
+    rouge_l, bert_scores = [], []
 
     i = 0
     with torch.no_grad():
@@ -121,13 +124,19 @@ def main(args, cuda):
             ext_inds = []
 
             for raw_art_sents in raw_article_batch:
-                ext = extractor(raw_art_sents)[:-1]  # exclude EOE
+
+                if args.mode == 'abstractor':
+                    ext = None
+                    top_n = 50
+                else:
+                    ext = extractor(raw_art_sents)[:-1]  # exclude EOE
+                    top_n = 5 # use top-5 if nothing is extracted
+
                 if not ext:
-                    # use top-5 if nothing is extracted
-                    # in some rare cases rnn-ext does not extract at all
-                    ext = list(range(5))[:len(raw_art_sents)]
+                    ext = list(range(top_n))[:len(raw_art_sents)]
                 else:
                     ext = [i.item() for i in ext]
+
                 ext_inds += [(len(ext_arts), len(ext))]
                 ext_arts += [raw_art_sents[i] for i in ext]
 
@@ -151,7 +160,6 @@ def main(args, cuda):
                 reference_sent = ' '.join(concat(reference))
                 reference_sent = reference_sent.replace("<sos>","").replace("<eos>","")
                 
-                # to do
                 b_score = bertscore.compute(predictions= [decoded_sent], references = [reference_sent], lang="en")
                 bert_scores.append(b_score["f1"][0])
 
@@ -165,8 +173,7 @@ def main(args, cuda):
                     f.write('\n'.join(cleaned_decoded_sentences))
                 i += 1
 
-    print(f'Rouge-2: {np.mean(np.asarray(rouge_2))}')
-    print(f'Rouge-l: {np.mean(np.asarray(rouge_l))}')
+    print(f'Rouge-L: {np.mean(np.asarray(rouge_l))}')
     print(f'BERTScore: {np.mean(bert_scores)}')
 
 
@@ -179,6 +186,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--batch_size', type=int, action='store', default=2,help='batch size of faster decoding')
     parser.add_argument('--n_sentences', type=int, action='store', default=None,help='maximum number of sentences used for decoding')
+
+    parser.add_argument('--mode', type=str, action='store', default='full', choices=['full','abstractor','extractor'], help='choose the checkpoints to lead')
 
     args = parser.parse_args()
 
