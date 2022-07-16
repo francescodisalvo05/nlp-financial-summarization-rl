@@ -167,7 +167,67 @@ python ./scripts/train_abstractor.py \
 ```
 
 ## Results
-to do: add results
+The following table summarizes the Rouge scores obtained on the entire datasets (large).
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-7btt" colspan="2">FNS</th>
+    <th class="tg-7btt" colspan="2">DailyCNN</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-7btt"><center><b>Only Extractor</b></center></td>
+    <td class="tg-7btt"><center><b>Full pipeline</b></center></td>
+    <td class="tg-c3ow"><center><span style="font-weight:bold"><b>Only Extractor</b></span></center></td>
+    <td class="tg-7btt"><center><b>Full pipeline</b></center></td>
+  </tr>
+  <tr>
+    <td class="tg-c3ow"><center>0.36</center></td>
+    <td class="tg-c3ow"><center>0.38</center></td>
+    <td class="tg-c3ow"><center>0.20</center></td>
+    <td class="tg-c3ow"><center>0.23</center></td>
+  </tr>
+</tbody>
+</table>
+
+While in the upcoming we have the cross-evaluation on dataset samples (small) performed by 
+using different reinforcement rewards and extracted labels.
+
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-8bgf"></th>
+    <th class="tg-7btt" colspan="2"><b>FNS</b></th>
+    <th class="tg-7btt" colspan="2"><b>DailyCNN</b></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-c3ow"><span style="font-weight:700;font-style:normal;text-decoration:none"><b>Extracted labels</b> </span><br><span style="font-weight:700;font-style:normal;text-decoration:none">&amp; </span><span style="font-weight:700"><b>RL Policy</b></span></td>
+    <td class="tg-7btt"><b>Rouge-L</b></td>
+    <td class="tg-7btt"><b>BERT score</b></td>
+    <td class="tg-c3ow"><span style="font-weight:bold;font-style:normal;text-decoration:none"><b>Rouge-L</b></span></td>
+    <td class="tg-7btt"><span style="font-weight:bold;font-style:normal;text-decoration:none"><b>BERT score</b></span></td>
+  </tr>
+  <tr>
+    <td class="tg-7btt"><b>Rouge-L</b></td>
+    <td class="tg-c3ow"><center>0.27</center></td>
+    <td class="tg-c3ow"><center>0.80</center></td>
+    <td class="tg-c3ow"><center>0.09</center></td>
+    <td class="tg-c3ow"><center>0.78</center></td>
+  </tr>
+  <tr>
+    <td class="tg-7btt"><b>BERT score</b></td>
+    <td class="tg-c3ow"><center>0.26</center></td>
+    <td class="tg-c3ow"><center>0.81</center></td>
+    <td class="tg-c3ow"><center>0.10</center></td>
+    <td class="tg-c3ow"><center>0.78</center></td>
+  </tr>
+</tbody>
+</table>
+
+
 
 ## Pre trained models
 In [this](https://drive.google.com/drive/folders/1tEVT_HRhAPYZaECJis8azTF3yOS4dZRr?usp=sharing) shared folder you can find the pre trained models used for all the main 
