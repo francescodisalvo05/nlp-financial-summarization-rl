@@ -1,6 +1,7 @@
 # Hybrid Text Summarization through Reinforcement Learning
 This repository contains the code for the "Deep Natural Language Processing" final project at Politecnico di Torino during the academic year 2021/2022.
-This paper explores an hybrid neural summariza-tion task, where an extractor agent filters the most salient information that will be paraphrased by the abstractor agent. Then, a reinforcement learning agent will reward the produced output for jointly learning both agents. We explored this architecture across two different domains and with two different reinforcement learning policies. We proved that the performances dropped with respect to Rouge-L score on a different domain and with less number of summary sentences as a reference. Moreover,
+<br>
+This paper explores an hybrid neural summarization task, where an extractor agent filters the most salient information that will be paraphrased by the abstractor agent. Then, a reinforcement learning agent will reward the produced output for jointly learning both agents. We explored this architecture across two different domains and with two different reinforcement learning policies. We proved that the performances dropped with respect to Rouge-L score on a different domain and with less number of summary sentences as a reference. Moreover,
 on a randomly selected subsample we showed that despite a
 lower Rouge-L we obtain comparable results on BERTScore, that
 takes into account the context and the semantic of the produced
