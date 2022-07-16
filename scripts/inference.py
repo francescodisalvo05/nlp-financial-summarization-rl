@@ -151,7 +151,6 @@ def main(args, cuda):
 
                 decoded_sentences = [' '.join(dec) for dec in decoded_outputs[j:j + n]]
                 # evaluation
-                rouge_2.append(compute_rouge_n(list(concat(decoded_outputs)), list(concat(reference)), n=2))
                 rouge_l.append(compute_rouge_l_summ(decoded_outputs, reference))
                 
                 decoded_sent = ' '.join(concat(decoded_outputs))
