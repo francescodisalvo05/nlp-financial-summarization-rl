@@ -1,11 +1,7 @@
 # Hybrid Text Summarization through Reinforcement Learning
 This repository contains the code for the "Deep Natural Language Processing" final project at Politecnico di Torino during the academic year 2021/2022.
 <br>
-This paper explores an hybrid neural summarization task, where an extractor agent filters the most salient information that will be paraphrased by the abstractor agent. Then, a reinforcement learning agent will reward the produced output for jointly learning both agents. We explored this architecture across two different domains and with two different reinforcement learning policies. We proved that the performances dropped with respect to Rouge-L score on a different domain and with less number of summary sentences as a reference. Moreover,
-on a randomly selected subsample we showed that despite a
-lower Rouge-L we obtain comparable results on BERTScore, that
-takes into account the context and the semantic of the produced
-summaries
+We explored the hybrid neural summarization architecture proposed by Zmandar et al [1] and previously implemented by Chen [2]. This novel approach has an extractor agent that filters the most salient information abstractor agent that will paraphrase them. Then, a reinforcement learning agent will reward the produced output for jointly learning both agents. We explored this architecture across two different domains and with two different reinforcement learning policies. We proved that the performances dropped with respect to Rouge-L score on a different domain and with less number of summary sentences as a reference. Moreover, on a randomly selected subsample we showed that despite a lower Rouge-L we obtain comparable results on BERTScore, that takes into account the context and the semantic of the produced summaries. 
 
 
 ## Install dependencies
@@ -118,6 +114,8 @@ python ./scripts/extract_labels.py \
 ```
 
 ## Training
+> The selected hyperparameters are repoted in the Appendix of our paper. Moreover, [here](https://drive.google.com/drive/u/2/folders/1tEVT_HRhAPYZaECJis8azTF3yOS4dZRr) you can find all the pretrained models!
+
 1. Train Gensim Word2Vec
 ```
 python ./scripts/train_word2vec.py \
