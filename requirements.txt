@@ -1,4 +1,4 @@
-pytorch=0.4.0
+torch
 gensim
 tensorboardX
 cytoolz
