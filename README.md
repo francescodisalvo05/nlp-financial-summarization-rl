@@ -3,6 +3,10 @@ This repository contains the code for the "Deep Natural Language Processing" fin
 <br>
 We explored the hybrid neural summarization architecture proposed by Zmandar et al [1], starting from the codebase of Chen [2]. This novel approach has an extractor agent that filters the most salient information abstractor agent that will paraphrase them. Then, a reinforcement learning agent will reward the produced output for jointly learning both agents. We explored this architecture across two different domains and with two different reinforcement learning policies. We proved that the performances dropped with respect to Rouge-L score on a different domain and with less number of summary sentences as a reference. Moreover, on a randomly selected subsample we showed that despite a lower Rouge-L we obtain comparable results on BERTScore, that takes into account the context and the semantic of the produced summaries. 
 
+<br />
+
+* 📜 [Report](https://github.com/francescodisalvo05/nlp-financial-summarization-rl/blob/master/assets/DiSalvo_LaMalfa_DeepNLP.pdf)
+* 💻 [Slide](https://github.com/francescodisalvo05/nlp-financial-summarization-rl/blob/master/assets/Hybrid%20Text%20Summarization%20through%20Reinforcement%20Learning.pdf)
 
 ## Install dependencies
 
